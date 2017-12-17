@@ -1,8 +1,8 @@
 import path from 'path';
+import CleanWebpackPlugin from 'clean-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import 'babel-polyfill';
 import webpack from 'webpack';
-// import BrowserSyncPlugin from 'browser-sync-webpack-plugin';
 
 // Phaser webpack config
 const phaserModule = path.join(__dirname, '/node_modules/phaser-ce/')
@@ -19,12 +19,9 @@ export default {
     vendor: ['pixi', 'p2', 'phaser', 'webfontloader']
   },
   output: {
-    pathinfo: true,
     path: path.resolve(__dirname, 'dist'),
-    //publicPath: '/',
-    filename: 'bundle.js',
+    filename: '[name].bundle.[chunkhash].js',
   },
-  // watch: true,
   module: {
     loaders: [
       { 
@@ -34,8 +31,8 @@ export default {
         include: path.join(__dirname, 'src')
       },
       {
-        test: /\.css$/,
-        loaders: ['style-loader', 'css-loader']
+        test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3)$/,
+        loaders: ['file-loader']
       },
       {
         test: /pixi\.js$/,
@@ -60,9 +57,10 @@ export default {
     new webpack.DefinePlugin({
       __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_ENV || 'true'))
     }),
+    new CleanWebpackPlugin(['dist']),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor'/* chunkName= */, 
-      filename: 'vendor.bundle.js'/* filename= */
+      filename: 'vendor.bundle.[chunkhash].js'/* filename= */
     }),
     new HtmlWebpackPlugin({
       template: './src/index.html',
@@ -71,13 +69,6 @@ export default {
       chunks: ['vendor', 'app'],
       chunksSortMode: 'manual'
     }),
-    /*new BrowserSyncPlugin({
-      host: process.env.IP || 'localhost',
-      port: process.env.PORT || 3000,
-      server: {
-        baseDir: ['./', './build']
-      }
-    })*/
   ],
   resolve: {
     alias: {
