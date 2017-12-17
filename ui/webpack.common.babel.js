@@ -67,7 +67,14 @@ export default {
       filename: 'index.html',
       inject: 'body',
       chunks: ['vendor', 'app'],
-      chunksSortMode: 'manual'
+      chunksSortMode: 'manual',
+      minify: {
+        removeAttributeQuotes: true,
+        collapseWhitespace: true,
+        html5: true,
+        removeComments: true,
+        removeEmptyAttributes: true
+      },
     }),
   ],
   resolve: {
