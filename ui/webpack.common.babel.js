@@ -5,10 +5,12 @@ import 'babel-polyfill';
 import webpack from 'webpack';
 
 // Phaser webpack config
-const phaserModule = path.join(__dirname, '/node_modules/phaser-ce/')
-const phaser = path.join(phaserModule, 'build/custom/phaser-split.js')
-const pixi = path.join(phaserModule, 'build/custom/pixi.js')
-const p2 = path.join(phaserModule, 'build/custom/p2.js')
+const phaserModule = path.join(__dirname, '/node_modules/phaser-ce/');
+const phaser = path.join(phaserModule, 'build/custom/phaser-split.js');
+const pixi = path.join(phaserModule, 'build/custom/pixi.js');
+const p2 = path.join(phaserModule, 'build/custom/p2.js');
+const socketio = path.join(__dirname, 
+  '/node_modules/socket.io-client/dist/socket.io.slim.js');
 
 export default {
   entry: {
@@ -16,7 +18,7 @@ export default {
       'babel-polyfill', 
       path.join(__dirname, '/src/index.js')
     ],
-    vendor: ['pixi', 'p2', 'phaser', 'webfontloader']
+    vendor: ['pixi', 'p2', 'phaser', 'webfontloader', 'socketio']
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -81,7 +83,8 @@ export default {
     alias: {
       'phaser': phaser,
       'pixi': pixi,
-      'p2': p2
+      'p2': p2,
+      'socketio': socketio,
     }
   }
 }
