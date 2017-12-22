@@ -4,6 +4,7 @@ import socketio
 import asyncio
 import socket
 import sys
+import argparse
 
 loop = asyncio.get_event_loop()
 sio = socketio.AsyncServer()
@@ -119,7 +120,7 @@ class Peer:
     
 
 class PeerManager:
-    def __init__(self, loop, server_port=9001):
+    def __init__(self, loop, server_port):
         self.loop = loop
         self.game_client = None
         self.game_server = None
@@ -187,16 +188,26 @@ class PeerManager:
         # sys.exit(0)
 
 
-async def init(loop):
+async def init(loop, web_port):
     handler = app.make_handler()
-    srv = await loop.create_server(handler, '0.0.0.0', 9000)
-    print('serving on', srv.sockets[0].getsockname())
+    srv = await loop.create_server(handler, '0.0.0.0', web_port)
+    # print('Access following address in browser:', srv.sockets[0].getsockname())
     return srv
 
 def main():
-    loop.run_until_complete(init(loop))
-    peer_manager = PeerManager(loop)
-    peer_manager.connect('localhost', 3000)
+    parser = argparse.ArgumentParser(description='Treasure Hunt Agent visualizer')
+    parser.add_argument('-g','--game-port', help='Port of the treasure hunt server', type=int, required=True)
+    parser.add_argument('-p','--port', help='Port of the visualizer where agent can connect',  type=int, default=9000, required=False)
+    parser.add_argument('-w','--web-port', help='Port for accessing visualizer from browser',  type=int, default=9001, required=False)
+    args = parser.parse_args()
+
+    game_port, port, web_port = args.game_port, args.port, args.web_port
+
+    loop.run_until_complete(init(loop, web_port))
+    peer_manager = PeerManager(loop, port)
+    peer_manager.connect('localhost', game_port)
+    print("Connect agent to this port:", port)
+    print("Access browser at this url:", "http://localhost:{}".format(web_port))
     #try:
     #    web.run_app(app)
     #except:
