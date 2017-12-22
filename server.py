@@ -53,8 +53,7 @@ class Peer:
         except Exception as e:
             print("Error in message handling:", e)
             print("Terminating {} connection".format(self.name))
-            if self.is_game_server:
-                self.server.exit()
+            self.server.exit()
         finally:
             #self.peer_handler.cancel()
             #self.terminate_connection()
@@ -64,11 +63,11 @@ class Peer:
     def message_handler(self):
         while True:
             buf = yield from self.loop.sock_recv(self.client_socket, 1024)
-            self.server.relay_to_game_client(buf)
             cells = buf.decode('utf-8')
             if cells == '':
-                print("Received empty message from {}".format(self.name))
+                raise Exception("Game server connection lost")
                 return # We do not expect blank messages, except for client disconnection
+            self.server.relay_to_game_client(buf)
             for cell in cells:
                 self.message_len += 1
                 self.cur_view += cell
@@ -94,12 +93,13 @@ class Peer:
     def command_handler(self):
         while True:
             buf = yield from self.loop.sock_recv(self.client_socket, 1024)
-            print("Received command from {}: #{}#".format(buf.decode('utf-8'), self.name))
-            self.server.relay_to_game_server(buf)
+            print("Received command #{}# from [{}]".format(buf.decode('utf-8'), self.name))
             commands = buf.decode('utf-8')
             if commands == '':
+                raise Exception("Game client connection lost")
                 return # We do not expect blank messages, except for client disconnection
-            
+            self.server.relay_to_game_server(buf)
+
     def terminate_connection(self):
         self.client_socket.close()
         self.server.remove(self)
@@ -185,7 +185,7 @@ class PeerManager:
         self.game_client and self.game_client.exit()
         self.game_server and self.game_server.exit()
         self.server_socket.close()
-        # sys.exit(0)
+        sys.exit(0)
 
 
 async def init(loop, web_port):
