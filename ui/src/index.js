@@ -30,4 +30,9 @@ const socket = io();
 const onConnect = () => {
   console.log('Connected: ', socket.id);
 };
+const logMsg = (data) => {
+  console.log('Msg received: ', data);
+};
 socket.on('connect', onConnect);
+socket.on('server', logMsg);
+socket.on('client', logMsg);

@@ -6,31 +6,36 @@ import socket
 import sys
 import argparse
 
+
 loop = asyncio.get_event_loop()
 sio = socketio.AsyncServer()
 app = web.Application(middlewares=[IndexMiddleware()])
 sio.attach(app)
+is_browser_connected = False
+browser_queue = []
 
-# async def index(request):
-#     """Serve the client-side application."""
-#     with open('./ui/dist/index.html') as f:
-#         return web.Response(text=f.read(), content_type='text/html')
-
-@sio.on('connect') #, namespace='/chat')
+@sio.on('connect')
 def connect(sid, environ):
-    print("connect ", sid)
+    print("Browser connected")
+    global is_browser_connected
+    is_browser_connected = True
+    for pair in browser_queue:
+        if pair[0] == "server":
+            sio.start_background_task(server_msg, pair[1])
+        else:
+            sio.start_background_task(client_msg, pair[1])
 
-@sio.on('chat message', namespace='/chat')
-async def message(sid, data):
-    print("message ", data)
-    await sio.emit('reply', room=sid)
+async def server_msg(data):
+    await sio.emit('server', data)
 
-@sio.on('disconnect', namespace='/chat')
+async def client_msg(data):
+    await sio.emit('client', data)
+
+@sio.on('disconnect')
 def disconnect(sid):
-    print('disconnect ', sid)
+    print("Browser disconnected")
 
 app.router.add_static('/', './ui/dist')
-# app.router.add_get('/', index)
 
 class Peer:
     def __init__(self, server, client_socket, client_name, is_game_server=False):
@@ -75,6 +80,10 @@ class Peer:
                     self.cur_view += "^"
                     self.message_len += 1
                 elif self.message_len == 25:
+                    if is_browser_connected:
+                        sio.start_background_task(server_msg, self.cur_view)
+                    else:
+                        browser_queue.append(("server", self.cur_view))
                     view = [ [self.cur_view[row*5 + col] for col in range(5)] for row in range(5)]
                     self. message_len = 0
                     self.cur_view = ""
@@ -99,6 +108,10 @@ class Peer:
                 raise Exception("Game client connection lost")
                 return # We do not expect blank messages, except for client disconnection
             self.server.relay_to_game_server(buf)
+            if is_browser_connected:
+                sio.start_background_task(client_msg, commands)
+            else:
+                browser_queue.append(("client", commands))
 
     def terminate_connection(self):
         self.client_socket.close()
