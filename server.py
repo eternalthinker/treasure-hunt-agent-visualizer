@@ -7,7 +7,7 @@ import sys
 
 loop = asyncio.get_event_loop()
 sio = socketio.AsyncServer()
-app = web.Application(middlewares=[IndexMiddleware()], loop=loop)
+app = web.Application(middlewares=[IndexMiddleware()])
 sio.attach(app)
 
 # async def index(request):
@@ -194,17 +194,17 @@ async def init(loop):
     return srv
 
 def main():
-    # loop.run_until_complete(init(loop))
+    loop.run_until_complete(init(loop))
     peer_manager = PeerManager(loop)
     peer_manager.connect('localhost', 3000)
-    try:
-        web.run_app(app)
-    except:
-        pass
     #try:
-    #    loop.run_forever()
-    #except Exception as e:
+    #    web.run_app(app)
+    #except:
     #    pass
+    try:
+        loop.run_forever()
+    except Exception as e:
+        pass
 
 if __name__ == '__main__':
     #web.run_app(app)
