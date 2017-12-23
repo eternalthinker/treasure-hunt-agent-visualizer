@@ -34,5 +34,4 @@ const logMsg = (data) => {
   console.log('Msg received: ', data);
 };
 socket.on('connect', onConnect);
-socket.on('server', logMsg);
-socket.on('client', logMsg);
+socket.on('commands', logMsg);
