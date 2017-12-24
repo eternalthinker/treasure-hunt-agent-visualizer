@@ -51,14 +51,15 @@ export default {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loaders: ['eslint-loader']
+        loader: 'eslint-loader',
+        enforce: 'pre',
+        options: {
+          fix: true
+        }
       },
     ]
   },
   plugins: [
-    new webpack.DefinePlugin({
-      __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_ENV || 'true'))
-    }),
     new CleanWebpackPlugin(['dist']),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor'/* chunkName= */, 

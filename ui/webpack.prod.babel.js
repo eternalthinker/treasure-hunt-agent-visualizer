@@ -15,9 +15,6 @@ export default merge(common, {
     ]
   },
 	plugins: [
-		new webpack.DefinePlugin({
-      __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_ENV || 'false'))
-    }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 		new ExtractTextPlugin('[name].bundle.[chunkhash].css'),
 		new webpack.optimize.UglifyJsPlugin({

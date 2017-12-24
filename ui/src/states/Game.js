@@ -1,9 +1,13 @@
 /* globals __DEV__ */
 import Phaser from 'phaser';
-import Mushroom from '../sprites/Mushroom';
+import * as utils from './utils';
 
 export default class extends Phaser.State {
-  init () {}
+  init () {
+    const treasureMapTxt = this.game.cache.getText('treasureMapTxt');
+    console.log(utils.parseTreasureMapTxt(treasureMapTxt));
+  }
+
   preload () {}
 
   create () {
@@ -26,19 +30,19 @@ export default class extends Phaser.State {
     banner.smoothed = false;
     banner.anchor.setTo(0.5);
 
-    this.mushroom = new Mushroom({
+    /* this.mushroom = new Mushroom({
       game: this.game,
       x: this.world.centerX,
       y: this.world.centerY,
       asset: 'mushroom'
     });
 
-    this.game.add.existing(this.mushroom);
+    this.game.add.existing(this.mushroom); */
   }
 
   render () {
     if (__DEV__) {
-      this.game.debug.spriteInfo(this.mushroom, 32, 32);
+      // this.game.debug.spriteInfo(this.mushroom, 32, 32);
     }
   }
 }

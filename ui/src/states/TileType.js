@@ -1,0 +1,13 @@
+export const GROUND = 'GROUND';
+export const WATER = 'WATER';
+export const WALL = 'WALL';
+export const DOOR = 'DOOR';
+export const KEY = 'KEY';
+export const TREE = 'TREE';
+export const DYNAMITE = 'DYNAMITE';
+export const AXE = 'AXE';
+export const TREASURE = 'TREASURE';
+export const PLAYER_N = 'PLAYER_N';
+export const PLAYER_S = 'PLAYER_S';
+export const PLAYER_E = 'PLAYER_E';
+export const PLAYER_W = 'PLAYER_W';

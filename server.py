@@ -32,7 +32,7 @@ def main():
     if not map_file.is_file():
         print("[!] Could not find map file at", map_file)
         sys.exit(0)
-    copyfile(str(map_file), "./ui/dist/" + map_file.name)
+    copyfile(str(map_file), str(Path("ui", "dist", "treasure-map.txt")))
 
     game_port, port, web_port = args.game_port, args.port, args.web_port
 
@@ -48,8 +48,8 @@ def main():
     connection_manager = ConnectionManager(loop, port, browser_socket)
     connection_manager.connect('localhost', game_port)
     print("================================================================")
-    print("*** Access browser at this url:", "http://localhost:{}".format(web_port))
-    print("*** Connect agent to this port:", port)
+    print("*** Open this url in browser:", "http://localhost:{}".format(web_port))
+    print("*** Connect agent program to this port:", port)
     print("================================================================")
     try:
         loop.run_forever()

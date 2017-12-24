@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { centerGameObjects } from '../utils';
-import mushroomImg from '../../assets/images/mushroom2.png';
+import spriteSheetImg from '../../assets/sprites.png';
 
 export default class extends Phaser.State {
   init () {}
@@ -14,7 +14,8 @@ export default class extends Phaser.State {
     //
     // load your assets
     //
-    this.load.image('mushroom', mushroomImg);
+    this.load.text('treasureMapTxt', '/treasure-map.txt');
+    this.load.spritesheet('spriteSheet', spriteSheetImg, 64, 64);
   }
 
   create () {
