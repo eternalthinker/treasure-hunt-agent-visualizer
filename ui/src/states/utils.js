@@ -1,6 +1,7 @@
 import * as TileType from './TileType';
 import * as SpriteFrame from './SpriteFrame';
 import TileData from './TileData';
+import Tile from '../sprites/Tile';
 
 const tileMap = {
   ' ': TileType.GROUND,
@@ -86,7 +87,10 @@ const toTileDataGrid = (treasureMapTxt) => {
       NONE: !linkN && !linkS && !linkE && !linkW,
       N: linkN && !linkS && !linkE && !linkW,
       S: !linkN && linkS && !linkE && !linkW,
+      E: !linkN && !linkS && linkE && !linkW,
+      W: !linkN && !linkS && !linkE && linkW,
       EW: !linkN && !linkS && linkE && linkW,
+      NS: linkN && linkS && !linkE && !linkW,
       NE: linkN && !linkS && linkE && !linkW,
       NW: linkN && !linkS && !linkE && linkW,
       SE: !linkN && linkS && linkE && !linkW,
@@ -135,5 +139,29 @@ const toTileDataGrid = (treasureMapTxt) => {
   );
 };
 
-export const parseTreasureMapTxt = (txt) =>
-  toTileDataGrid(txt);
+const toTileLayer = (tileDataGrid, layer, tileSize, game) =>
+  tileDataGrid.map((row) =>
+    row.map((pair) => {
+      const tileData = pair[layer];
+      if (tileData === null) {
+        return null;
+      }
+      const tile = new Tile({
+        x: tileData.x * tileSize,
+        y: tileData.y * tileSize,
+        asset: 'spriteSheet',
+        game: game,
+        tileType: tileData.tileType
+      });
+      tile.frame = tileData.frame;
+      return tile;
+    })
+  );
+
+export const parseMapTxtToTileLayers = (txt, game) => {
+  const tileDataGrid = toTileDataGrid(txt);
+  console.log('tileDataGrid', tileDataGrid);
+  const bgLayer = toTileLayer(tileDataGrid, 0, 64, game);
+  const fgLayer = toTileLayer(tileDataGrid, 1, 64, game);
+  return [bgLayer, fgLayer];
+};
