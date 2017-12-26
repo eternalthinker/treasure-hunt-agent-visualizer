@@ -1,6 +1,7 @@
-/* globals __DEV__ */
 import Phaser from 'phaser';
+import io from 'socket.io-client';
 import * as utils from './utils';
+import * as Command from './Command';
 
 export default class extends Phaser.State {
   /* constructor (props) {
@@ -13,7 +14,6 @@ export default class extends Phaser.State {
     const treasureMapTxt = this.game.cache.getText('treasureMapTxt');
     // console.log(utils.parseTreasureMapTxt(treasureMapTxt));
     const tileLayers = utils.parseMapTxtToTileLayers(treasureMapTxt, this.game);
-    console.log('tileLayers', tileLayers);
     this.bgLayer = tileLayers[0];
     this.fgLayer = tileLayers[1];
 
@@ -33,6 +33,27 @@ export default class extends Phaser.State {
       )
     );
   }
+
+  handleCommands = (cmds) => {
+    cmds.trim().split('').map((cmd) => this.handleCommand(cmd.toLowerCase()));
+  };
+
+  handleCommand = (cmd) => {
+    console.log('Command:', cmd);
+    switch (cmd) {
+      case Command.STEP_FORWARD:
+        console.log('Stepping forward');
+        this.agent.y += 64;
+        break;
+      case Command.TURN_RIGHT:
+      case Command.TURN_LEFT:
+      case Command.CUT:
+      case Command.UNLOCK:
+      case Command.BOMB:
+        console.log('Command not handled yet');
+        break;
+    }
+  };
 
   create () {
     const bannerText = 'Phaser + ES6 + Webpack';
@@ -62,8 +83,22 @@ export default class extends Phaser.State {
     });
 
     this.game.add.existing(this.mushroom); */
+
+    const r1 = this.fgLayer
+      .map(row => row.filter(tile => tile && tile.tileType.startsWith('AGENT')));
+    const r2 = r1
+      .filter(row => row.length > 0);
+    this.agent = r2[0][0];
+
     this.renderLayer(this.bgLayer);
     this.renderLayer(this.fgLayer);
+
+    this.socket = io();
+    const onConnect = () => {
+      console.log('Connected to visualization server');
+    };
+    this.socket.on('connect', onConnect);
+    this.socket.on('commands', this.handleCommands);
   }
 
   update () {
@@ -81,8 +116,8 @@ export default class extends Phaser.State {
   }
 
   render () {
-    if (__DEV__) {
+    /* if (__DEV__) {
       // this.game.debug.spriteInfo(this.mushroom, 32, 32);
-    }
+    } */
   }
 }

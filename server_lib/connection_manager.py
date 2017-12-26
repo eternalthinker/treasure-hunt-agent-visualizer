@@ -1,5 +1,6 @@
 import asyncio
 import socket
+import sys
 
 class Connection:
     def __init__(self, server, client_socket, client_name, browser_socket=None, is_game_server=False):
@@ -85,6 +86,7 @@ class Connection:
         print("[!] Exiting connection handler for [{}]".format(self.name))
         self.connection_handler.cancel()
         self.client_socket.close()
+        sys.exit(0)
     
 
 class ConnectionManager:

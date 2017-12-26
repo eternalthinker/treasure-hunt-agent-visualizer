@@ -160,7 +160,6 @@ const toTileLayer = (tileDataGrid, layer, tileSize, game) =>
 
 export const parseMapTxtToTileLayers = (txt, game) => {
   const tileDataGrid = toTileDataGrid(txt);
-  console.log('tileDataGrid', tileDataGrid);
   const bgLayer = toTileLayer(tileDataGrid, 0, 64, game);
   const fgLayer = toTileLayer(tileDataGrid, 1, 64, game);
   return [bgLayer, fgLayer];

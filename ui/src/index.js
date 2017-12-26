@@ -1,7 +1,6 @@
 import 'pixi';
 import 'p2';
 import Phaser from 'phaser';
-import io from 'socket.io-client';
 
 import './index.css';
 import BootState from './states/Boot';
@@ -26,12 +25,3 @@ class Game extends Phaser.Game {
 }
 
 window.game = new Game();
-const socket = io();
-const onConnect = () => {
-  console.log('Connected: ', socket.id);
-};
-const logMsg = (data) => {
-  console.log('Msg received: ', data);
-};
-socket.on('connect', onConnect);
-socket.on('commands', logMsg);
