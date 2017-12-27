@@ -46,11 +46,20 @@ export default class extends Phaser.State {
     console.log('Command:', cmd);
     switch (cmd) {
       case Command.STEP_FORWARD:
-        console.log('Stepping forward to', this.agentLookingAt().tileType);
-        this.agent.y += 64;
+        const agentLookingAt = this.agentLookingAt();
+        console.log('Trying to step forward to', agentLookingAt.tileType);
+        if (!agentLookingAt.isBlocking()) {
+          this.agent.moveForward();
+        } else {
+          console.log("Can't move!");
+        }
         break;
       case Command.TURN_RIGHT:
+        this.agent.turnRight();
+        break;
       case Command.TURN_LEFT:
+        this.agent.turnLeft();
+        break;
       case Command.CUT:
       case Command.UNLOCK:
       case Command.BOMB:
