@@ -22,6 +22,7 @@ export default class extends Phaser.State {
     this.game.world.setBounds(0, 0, worldWidth, worldHeight);
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
+    this.worldScale = 1;
   }
 
   preload () {}
@@ -113,6 +114,19 @@ export default class extends Phaser.State {
     } else if (this.cursors.right.isDown) {
       this.game.camera.x += 4;
     }
+
+    // zoom -- should move to separate group when constant UI elements are there
+    if (this.game.input.keyboard.isDown(Phaser.Keyboard.Q)) {
+      this.worldScale += 0.05;
+    } else if (this.game.input.keyboard.isDown(Phaser.Keyboard.A)) {
+      this.worldScale -= 0.05;
+    }
+
+    // set a minimum and maximum scale value
+    this.worldScale = Phaser.Math.clamp(this.worldScale, 0.5, 2);
+
+    // set our world scale as needed
+    this.game.world.scale.set(this.worldScale);
   }
 
   render () {
