@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { centerGameObjects } from '../utils';
+import { centerGameObjects } from '../utils/common';
 import spriteSheetImg from '../../assets/sprites.png';
 
 export default class extends Phaser.State {

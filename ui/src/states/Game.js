@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import io from 'socket.io-client';
-import * as utils from './utils';
-import * as Command from './Command';
+import * as parseUtils from '../utils/parseUtils';
+import * as Command from '../constants/Command';
 
 export default class extends Phaser.State {
   /* constructor (props) {
@@ -13,7 +13,7 @@ export default class extends Phaser.State {
   init () {
     const treasureMapTxt = this.game.cache.getText('treasureMapTxt');
     // console.log(utils.parseTreasureMapTxt(treasureMapTxt));
-    const tileLayers = utils.parseMapTxtToTileLayers(treasureMapTxt, this.game);
+    const tileLayers = parseUtils.parseMapTxtToTileLayers(treasureMapTxt, this.game);
     this.bgLayer = tileLayers[0];
     this.fgLayer = tileLayers[1];
 

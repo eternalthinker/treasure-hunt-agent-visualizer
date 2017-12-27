@@ -1,7 +1,7 @@
-import * as TileType from './TileType';
-import * as SpriteFrame from './SpriteFrame';
+import * as TileType from '../../constants/TileType';
+import * as SpriteFrame from '../../constants/SpriteFrame';
 import TileData from './TileData';
-import Tile from '../sprites/Tile';
+import Tile from '../../sprites/Tile';
 
 const tileMap = {
   ' ': TileType.GROUND,
