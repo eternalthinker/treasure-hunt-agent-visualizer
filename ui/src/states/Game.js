@@ -128,7 +128,7 @@ export default class extends Phaser.State {
     }
 
     // set a minimum and maximum scale value
-    this.worldScale = Phaser.Math.clamp(this.worldScale, 0.5, 2);
+    this.worldScale = Phaser.Math.clamp(this.worldScale, 0.25, 2);
 
     // set our world scale as needed
     this.game.world.scale.set(this.worldScale);
