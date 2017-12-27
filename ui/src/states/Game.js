@@ -46,7 +46,7 @@ export default class extends Phaser.State {
     console.log('Command:', cmd);
     switch (cmd) {
       case Command.STEP_FORWARD:
-        console.log('Stepping forward');
+        console.log('Stepping forward to', this.agentLookingAt().tileType);
         this.agent.y += 64;
         break;
       case Command.TURN_RIGHT:
@@ -58,6 +58,13 @@ export default class extends Phaser.State {
         break;
     }
   };
+
+  agentLookingAt () {
+    const { x, y } = this.agent.lookingAt();
+    console.log(x, y);
+    const tile = this.fgLayer[y][x] || this.bgLayer[y][x];
+    return tile;
+  }
 
   create () {
     const bannerText = 'Phaser + ES6 + Webpack';
@@ -78,15 +85,6 @@ export default class extends Phaser.State {
     banner.fill = '#77BFA3';
     banner.smoothed = false;
     banner.anchor.setTo(0.5);
-
-    /* this.mushroom = new Mushroom({
-      game: this.game,
-      x: this.world.centerX,
-      y: this.world.centerY,
-      asset: 'mushroom'
-    });
-
-    this.game.add.existing(this.mushroom); */
 
     this.renderLayer(this.bgLayer);
     this.renderLayer(this.fgLayer);

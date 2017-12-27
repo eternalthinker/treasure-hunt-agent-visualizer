@@ -153,7 +153,8 @@ const toTileLayer = (tileDataGrid, layer, tileSize, game) =>
         asset: 'spriteSheet',
         frame: tileData.frame,
         game: game,
-        tileType: tileData.tileType
+        tileType: tileData.tileType,
+        tileSize: tileSize
       });
       return tile;
     })
@@ -172,7 +173,8 @@ const getAgent = fgLayer =>
           asset: 'spriteSheet',
           frame: tile.frame,
           game: tile.game,
-          tileType: tile.tileType
+          tileType: tile.tileType,
+          tileSize: tile.tileSize
         });
       }
       return accTile;
