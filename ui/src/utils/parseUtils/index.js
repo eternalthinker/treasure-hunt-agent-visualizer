@@ -2,6 +2,7 @@ import * as TileType from '../../constants/TileType';
 import * as SpriteFrame from '../../constants/SpriteFrame';
 import TileData from './TileData';
 import Tile from '../../sprites/Tile';
+import Agent from '../../sprites/Agent';
 
 const tileMap = {
   ' ': TileType.GROUND,
@@ -150,17 +151,46 @@ const toTileLayer = (tileDataGrid, layer, tileSize, game) =>
         x: tileData.x * tileSize,
         y: tileData.y * tileSize,
         asset: 'spriteSheet',
+        frame: tileData.frame,
         game: game,
         tileType: tileData.tileType
       });
-      tile.frame = tileData.frame;
       return tile;
     })
   );
 
-export const parseMapTxtToTileLayers = (txt, game) => {
+const getAgent = fgLayer =>
+  fgLayer.reduce((accRow, row) => {
+    if (accRow) {
+      return accRow;
+    }
+    const agent = row.reduce((accTile, tile) => {
+      if (tile && tile.tileType.startsWith('AGENT')) {
+        return new Agent({
+          x: tile.x,
+          y: tile.y,
+          asset: 'spriteSheet',
+          frame: tile.frame,
+          game: tile.game,
+          tileType: tile.tileType
+        });
+      }
+      return accTile;
+    }, null);
+    return agent;
+  }, null);
+
+export const parseMapTxt = (txt, game, tileSize) => {
   const tileDataGrid = toTileDataGrid(txt);
-  const bgLayer = toTileLayer(tileDataGrid, 0, 64, game);
-  const fgLayer = toTileLayer(tileDataGrid, 1, 64, game);
-  return [bgLayer, fgLayer];
+  const bgLayer = toTileLayer(tileDataGrid, 0, tileSize, game);
+  let fgLayer = toTileLayer(tileDataGrid, 1, tileSize, game);
+  const agent = getAgent(fgLayer);
+  fgLayer = fgLayer.map(row => row.map(tile =>
+    (tile && tile.tileType.startsWith('AGENT')) ? null : tile
+  ));
+  return {
+    bgLayer,
+    fgLayer,
+    agent
+  };
 };

@@ -11,11 +11,14 @@ export default class extends Phaser.State {
   } */
 
   init () {
+    const tileSize = 64;
     const treasureMapTxt = this.game.cache.getText('treasureMapTxt');
     // console.log(utils.parseTreasureMapTxt(treasureMapTxt));
-    const tileLayers = parseUtils.parseMapTxtToTileLayers(treasureMapTxt, this.game);
-    this.bgLayer = tileLayers[0];
-    this.fgLayer = tileLayers[1];
+    const { bgLayer, fgLayer, agent } =
+      parseUtils.parseMapTxt(treasureMapTxt, this.game, tileSize);
+    this.bgLayer = bgLayer;
+    this.fgLayer = fgLayer;
+    this.agent = agent;
 
     const worldWidth = this.bgLayer[0].length * 64;
     const worldHeight = this.bgLayer.length * 64;
@@ -85,14 +88,9 @@ export default class extends Phaser.State {
 
     this.game.add.existing(this.mushroom); */
 
-    const r1 = this.fgLayer
-      .map(row => row.filter(tile => tile && tile.tileType.startsWith('AGENT')));
-    const r2 = r1
-      .filter(row => row.length > 0);
-    this.agent = r2[0][0];
-
     this.renderLayer(this.bgLayer);
     this.renderLayer(this.fgLayer);
+    this.game.add.existing(this.agent);
 
     this.socket = io();
     const onConnect = () => {
