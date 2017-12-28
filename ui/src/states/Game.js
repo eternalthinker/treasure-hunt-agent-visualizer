@@ -2,14 +2,10 @@ import Phaser from 'phaser';
 import io from 'socket.io-client';
 import * as parseUtils from '../utils/parseUtils';
 import * as Command from '../constants/Command';
+import * as TileType from '../constants/TileType';
+import * as SpriteFrame from '../constants/SpriteFrame';
 
 export default class extends Phaser.State {
-  /* constructor (props) {
-    super(props);
-    this.bgLayer = null;
-    this.fgLayer = null;
-  } */
-
   init () {
     const tileSize = 64;
     const treasureMapTxt = this.game.cache.getText('treasureMapTxt');
@@ -20,8 +16,10 @@ export default class extends Phaser.State {
     this.fgLayer = fgLayer;
     this.agent = agent;
 
-    const worldWidth = this.bgLayer[0].length * 64;
-    const worldHeight = this.bgLayer.length * 64;
+    this.gridWidth = this.bgLayer[0].length;
+    this.gridHeight = this.bgLayer.length;
+    const worldWidth = this.gridWidth * 64;
+    const worldHeight = this.gridHeight * 64;
     this.game.world.setBounds(0, 0, worldWidth, worldHeight);
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -44,12 +42,34 @@ export default class extends Phaser.State {
 
   handleCommand = (cmd) => {
     console.log('Command:', cmd);
+    const agentLookingAt = this.agentLookingAt();
+    console.log('Looking at:', agentLookingAt && agentLookingAt.tileType);
     switch (cmd) {
       case Command.STEP_FORWARD:
-        const agentLookingAt = this.agentLookingAt();
-        console.log('Trying to step forward to', agentLookingAt.tileType);
+        if (!agentLookingAt) {
+          console.log('Stepping into the unknown. You die.');
+          return;
+        }
         if (!agentLookingAt.isBlocking()) {
           this.agent.moveForward();
+          if (agentLookingAt.isCollectable()) {
+            this.agent.addToInventory(agentLookingAt.tileType);
+            this.removeFromFgLayer(agentLookingAt);
+            agentLookingAt.destroy();
+          } else if (agentLookingAt.tileType === TileType.WATER) {
+            if (!this.agent.has(TileType.TREE)) {
+              if (!this.agent.raft) {
+                console.log('You drowned');
+              }
+            } else {
+              this.agent.removeFromInventory(TileType.TREE);
+              this.agent.raft = true;
+              console.log('You float on a raft');
+            }
+          } else if (agentLookingAt.tileType === TileType.GROUND &&
+              this.agent.raft) {
+            this.agent.raft = false;
+          }
         } else {
           console.log("Can't move!");
         }
@@ -61,19 +81,59 @@ export default class extends Phaser.State {
         this.agent.turnLeft();
         break;
       case Command.CUT:
+        if (!this.agent.has(TileType.AXE)) {
+          console.log("Can't cut without axe!");
+          return;
+        }
+        if (agentLookingAt && agentLookingAt.tileType === TileType.TREE) {
+          this.agent.addToInventory(agentLookingAt.tileType);
+          agentLookingAt.frame = SpriteFrame.TREE_CUT;
+          this.removeFromFgLayer(agentLookingAt);
+        }
+        break;
       case Command.UNLOCK:
+        if (!this.agent.has(TileType.KEY)) {
+          console.log("Can't unlock without key!");
+          return;
+        }
+        if (agentLookingAt && agentLookingAt.tileType === TileType.DOOR) {
+          agentLookingAt.frame =
+            SpriteFrame[`DOOR_OPEN_LINKED_${agentLookingAt.linkType}`];
+          this.removeFromFgLayer(agentLookingAt);
+        }
+        break;
       case Command.BOMB:
-        console.log('Command not handled yet');
+        if (!this.agent.has(TileType.DYNAMITE)) {
+          console.log("Can't bomb without dynamite!");
+          return;
+        }
+        if (agentLookingAt && agentLookingAt.isDestructableByBomb()) {
+          agentLookingAt.frame = SpriteFrame.BOMBED_GROUND;
+          this.removeFromFgLayer(agentLookingAt);
+          this.agent.removeFromInventory(TileType.DYNAMITE);
+        }
+        break;
+      default:
+        console.log('Unhandled command');
         break;
     }
   };
 
-  agentLookingAt () {
+  removeFromFgLayer = (tile) => {
+    this.fgLayer[tile.gridY][tile.gridX] = null;
+  };
+
+  isOutOfBounds = (x, y) =>
+    x < 0 || x >= this.gridWidth || y < 0 || y >= this.gridHeight
+
+  agentLookingAt = () => {
     const { x, y } = this.agent.lookingAt();
-    console.log(x, y);
+    if (this.isOutOfBounds(x, y)) {
+      return null;
+    }
     const tile = this.fgLayer[y][x] || this.bgLayer[y][x];
     return tile;
-  }
+  };
 
   create () {
     const bannerText = 'Phaser + ES6 + Webpack';

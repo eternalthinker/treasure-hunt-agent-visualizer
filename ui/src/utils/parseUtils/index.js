@@ -125,14 +125,14 @@ const toTileDataGrid = (treasureMapTxt) => {
       const bgCell = (cell === TileType.WATER)
         ? TileType.WATER : TileType.GROUND;
       const tileBg = new TileData(
-        x, y, bgCell, SpriteFrame[`${bgCell}_LINKED_${bgLinkType}`]
+        x, y, bgCell, SpriteFrame[`${bgCell}_LINKED_${bgLinkType}`], bgLinkType
       );
       let tileFg = null;
       if (!groundTiles.includes(cell)) {
         const fgFrame = fgLinkType
           ? `${cell}_LINKED_${fgLinkType}` : `${cell}`;
         tileFg = new TileData(
-          x, y, cell, SpriteFrame[fgFrame]
+          x, y, cell, SpriteFrame[fgFrame], fgLinkType
         );
       }
       return [tileBg, tileFg];
@@ -154,7 +154,8 @@ const toTileLayer = (tileDataGrid, layer, tileSize, game) =>
         frame: tileData.frame,
         game: game,
         tileType: tileData.tileType,
-        tileSize: tileSize
+        tileSize: tileSize,
+        linkType: tileData.linkType
       });
       return tile;
     })
