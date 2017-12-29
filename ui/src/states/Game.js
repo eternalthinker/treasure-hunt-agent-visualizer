@@ -4,6 +4,7 @@ import * as parseUtils from '../utils/parseUtils';
 import * as Command from '../constants/Command';
 import * as TileType from '../constants/TileType';
 import * as SpriteFrame from '../constants/SpriteFrame';
+import config from '../config';
 
 export default class extends Phaser.State {
   init () {
@@ -18,9 +19,9 @@ export default class extends Phaser.State {
 
     this.gridWidth = this.bgLayer[0].length;
     this.gridHeight = this.bgLayer.length;
-    const worldWidth = this.gridWidth * 64;
-    const worldHeight = this.gridHeight * 64;
-    this.game.world.setBounds(0, 0, worldWidth, worldHeight);
+    this.worldWidth = this.gridWidth * 64;
+    this.worldHeight = this.gridHeight * 64;
+    this.game.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.worldScale = 1;
@@ -140,28 +141,28 @@ export default class extends Phaser.State {
   };
 
   create () {
-    const bannerText = 'Phaser + ES6 + Webpack';
-    var style = {
-      font: '32px Arial',
-      fill: '#ff0044',
-      wordWrap: true,
-      align: 'center',
-      backgroundColor: '#ffff00'
-    };
-    let banner = this.add.text(this.world.centerX,
-      this.game.height - 80,
-      bannerText,
-      style);
-    banner.font = 'Bangers';
-    banner.padding.set(10, 16);
-    banner.fontSize = 40;
-    banner.fill = '#77BFA3';
-    banner.smoothed = false;
-    banner.anchor.setTo(0.5);
-
     this.renderLayer(this.bgLayer);
     this.renderLayer(this.fgLayer);
     this.game.add.existing(this.agent);
+    this.game.camera.follow(this.agent);
+    this.cameraFollow = true;
+    this.game.stage.disableVisibilityChange = true;
+
+    const displayWidth = config.gameWidth;
+    const displayHeight = config.gameHeight;
+    const widthScale = displayWidth / this.worldWidth;
+    const heightScale = displayHeight / this.worldHeight;
+    const worldScale = Math.min(widthScale, heightScale);
+    this.worldScale = Phaser.Math.clamp(worldScale, 0.25, 1);
+    if (worldScale === this.worldScale) {
+      this.cameraFollow = false;
+      this.world.camera.unfollow();
+    }
+    const gameWidth = Math.min(this.worldWidth * this.worldScale, config.gameWidth);
+    const gameHeight = Math.min(this.worldHeight * this.worldScale, config.gameHeight);
+    this.game.scale.setGameSize(gameWidth, gameHeight);
+
+    this.game.world.scale.set(this.worldScale);
 
     this.socket = io();
     const onConnect = () => {
@@ -172,6 +173,20 @@ export default class extends Phaser.State {
   }
 
   update () {
+    if (this.game.input.keyboard.isDown(Phaser.Keyboard.F)) {
+      if (this.cameraFollow) {
+        this.game.camera.unfollow();
+      } else {
+        this.game.camera.follow(this.agent);
+      }
+      this.cameraFollow = !this.cameraFollow;
+    }
+
+    if (this.game.input.keyboard.isDown(Phaser.Keyboard.Z)) {
+      this.worldScale = 1;
+      this.game.world.scale.set(this.worldScale);
+    }
+
     if (this.cursors.up.isDown) {
       this.game.camera.y -= 4;
     } else if (this.cursors.down.isDown) {

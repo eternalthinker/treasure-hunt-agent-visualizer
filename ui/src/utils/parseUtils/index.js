@@ -188,8 +188,15 @@ export const parseMapTxt = (txt, game, tileSize) => {
   const bgLayer = toTileLayer(tileDataGrid, 0, tileSize, game);
   let fgLayer = toTileLayer(tileDataGrid, 1, tileSize, game);
   const agent = getAgent(fgLayer);
-  fgLayer[agent.gridY][agent.gridX] = null;
-  bgLayer[agent.gridY][agent.gridX].frame = SpriteFrame.START;
+  fgLayer[agent.gridY][agent.gridX] = new Tile({
+    x: agent.x,
+    y: agent.y,
+    asset: 'spriteSheet',
+    frame: SpriteFrame.START,
+    game: game,
+    tileType: TileType.START,
+    tileSize: tileSize
+  });
   return {
     bgLayer,
     fgLayer,

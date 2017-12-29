@@ -6,6 +6,7 @@ export const KEY = 'KEY';
 export const TREE = 'TREE';
 export const DYNAMITE = 'DYNAMITE';
 export const AXE = 'AXE';
+export const START = 'START';
 export const TREASURE = 'TREASURE';
 export const PLAYER_N = 'AGENT_N';
 export const PLAYER_S = 'AGENT_S';
