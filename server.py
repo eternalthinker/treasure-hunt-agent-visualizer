@@ -17,13 +17,13 @@ async def init(loop, app, web_port):
 
 def main():
     parser = argparse.ArgumentParser(description='Treasure Hunt Agent visualizer')
-    parser.add_argument('-g','--game-port', help='Port of the treasure hunt (Raft) server', 
+    parser.add_argument('-p','--port', help='Port of the treasure hunt (Raft) server', 
         type=int, required=True)
     parser.add_argument('-m','--map-file', help='Path to treasure hunt map file', 
         type=str, required=True)
     parser.add_argument('-w','--web-port', help='Port for accessing visualizer from browser', 
         type=int, default=9000, required=False)
-    parser.add_argument('-p','--port', help='Port to run the visualizer server where agent can connect',  
+    parser.add_argument('-v','--visualizer-port', help='Port to run the visualizer server where agent can connect',  
         type=int, default=9001, required=False)
     
     args = parser.parse_args()
@@ -34,7 +34,7 @@ def main():
         sys.exit(0)
     copyfile(str(map_file), str(Path("ui", "dist", "treasure-map.txt")))
 
-    game_port, port, web_port = args.game_port, args.port, args.web_port
+    game_port, visualizer_port, web_port = args.port, args.visualizer_port, args.web_port
 
     loop = asyncio.get_event_loop()
     app = web.Application(middlewares=[IndexMiddleware()])
@@ -45,11 +45,11 @@ def main():
     app.router.add_static('/', './ui/dist')
 
     loop.run_until_complete(init(loop, app, web_port))
-    connection_manager = ConnectionManager(loop, port, browser_socket)
+    connection_manager = ConnectionManager(loop, visualizer_port, browser_socket)
     connection_manager.connect('localhost', game_port)
     print("================================================================")
     print("*** Open this url in browser:", "http://localhost:{}".format(web_port))
-    print("*** Connect agent program to this port:", port)
+    print("*** Connect agent program to this port:", visualizer_port)
     print("================================================================")
     try:
         loop.run_forever()

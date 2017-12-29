@@ -50,29 +50,33 @@ export default class extends Phaser.State {
           console.log('Stepping into the unknown. You die.');
           return;
         }
-        if (!agentLookingAt.isBlocking()) {
-          this.agent.moveForward();
-          if (agentLookingAt.isCollectable()) {
-            this.agent.addToInventory(agentLookingAt.tileType);
-            this.removeFromFgLayer(agentLookingAt);
-            agentLookingAt.destroy();
-          } else if (agentLookingAt.tileType === TileType.WATER) {
-            if (!this.agent.has(TileType.TREE)) {
-              if (!this.agent.raft) {
-                console.log('You drowned');
-              }
-            } else {
-              this.agent.removeFromInventory(TileType.TREE);
-              this.agent.raft = true;
-              console.log('You float on a raft');
-            }
-          } else if (agentLookingAt.tileType === TileType.GROUND &&
-              this.agent.raft) {
-            this.agent.raft = false;
-          }
-        } else {
+
+        if (agentLookingAt.isBlocking()) {
           console.log("Can't move!");
+          return;
         }
+
+        this.agent.moveForward();
+
+        if (this.agent.onRaft() && agentLookingAt.tileType !== TileType.WATER) {
+          this.agent.destroyRaft();
+        }
+
+        if (agentLookingAt.isCollectable()) {
+          this.agent.addToInventory(agentLookingAt.tileType);
+          this.removeFromFgLayer(agentLookingAt);
+          agentLookingAt.destroy();
+        } else if (agentLookingAt.tileType === TileType.WATER &&
+          !this.agent.onRaft()) {
+          if (!this.agent.has(TileType.TREE)) {
+            console.log('You drowned');
+          } else {
+            this.agent.removeFromInventory(TileType.TREE);
+            this.agent.makeRaft();
+            console.log('You float on a raft');
+          }
+        }
+
         break;
       case Command.TURN_RIGHT:
         this.agent.turnRight();

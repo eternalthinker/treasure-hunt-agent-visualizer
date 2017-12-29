@@ -188,9 +188,8 @@ export const parseMapTxt = (txt, game, tileSize) => {
   const bgLayer = toTileLayer(tileDataGrid, 0, tileSize, game);
   let fgLayer = toTileLayer(tileDataGrid, 1, tileSize, game);
   const agent = getAgent(fgLayer);
-  fgLayer = fgLayer.map(row => row.map(tile =>
-    (tile && tile.tileType.startsWith('AGENT')) ? null : tile
-  ));
+  fgLayer[agent.gridY][agent.gridX] = null;
+  bgLayer[agent.gridY][agent.gridX].frame = SpriteFrame.START;
   return {
     bgLayer,
     fgLayer,
