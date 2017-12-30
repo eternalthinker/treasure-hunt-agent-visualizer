@@ -33,8 +33,11 @@ const wallTiles = [
 
 const toTreasureMapData = (treasureMapTxt) =>
   treasureMapTxt.split('\n')
-    .map((rowTxt) =>
-      rowTxt.split('').map((chr) => tileMap[chr])
+    .map((rowTxt, row) =>
+      rowTxt.split('').map((chr, col) => {
+        if (!tileMap[chr]) { console.log(`No mapping for #${chr}#`, row, col); }
+        return tileMap[chr];
+      })
     )
     .filter((row) => row.length > 0);
 

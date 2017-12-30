@@ -3,6 +3,7 @@ import * as directionUtils from '../utils/directionUtils';
 import * as SpriteFrame from '../constants/SpriteFrame';
 import * as TileType from '../constants/TileType';
 import Tile from './Tile';
+import { baseN } from 'js-combinatorics';
 
 export default class extends Phaser.Sprite {
   constructor ({ game, x, y, asset, frame, tileType, tileSize }) {
@@ -96,17 +97,13 @@ export default class extends Phaser.Sprite {
   getView = () => {
     const x = this.gridX;
     const y = this.gridY;
-    return [
-      {x: x, y: y},
-      {x: x, y: y + 1},
-      {x: x, y: y - 1},
-      {x: x + 1, y: y},
-      {x: x - 1, y: y},
-      {x: x + 1, y: y + 1},
-      {x: x + 1, y: y - 1},
-      {x: x - 1, y: y + 1},
-      {x: x - 1, y: y - 1}
-    ];
+    return baseN([0, 1, -1, 2, -2], 2)
+      .map(pair => {
+        return {
+          x: x + pair[0],
+          y: y + pair[1]
+        };
+      });
   }
 
   update () {

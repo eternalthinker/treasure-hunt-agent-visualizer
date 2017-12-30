@@ -11,6 +11,7 @@
     "lint": "eslint ./src"
   },
   "dependencies": {
+    "js-combinatorics": "^0.5.3",
     "phaser-ce": "^2.9.3",
     "socket.io-client": "^2.0.4",
     "webfontloader": "^1.6.28"

@@ -11,6 +11,8 @@ export default class extends Phaser.State {
   }
 
   preload () {
+    this.clearGameCache();
+
     WebFont.load({
       google: {
         families: ['Bangers']
@@ -24,6 +26,11 @@ export default class extends Phaser.State {
     this.load.image('loaderBg', loaderBgImg);
     this.load.image('loaderBar', loaderBarImg);
   }
+
+  clearGameCache = () => {
+    this.game.load.reset();
+    this.game.load.removeAll();
+  };
 
   render () {
     if (this.fontsReady) {
