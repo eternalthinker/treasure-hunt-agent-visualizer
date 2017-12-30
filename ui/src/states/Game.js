@@ -11,10 +11,12 @@ export default class extends Phaser.State {
     const tileSize = 64;
     const treasureMapTxt = this.game.cache.getText('treasureMapTxt');
     // console.log(utils.parseTreasureMapTxt(treasureMapTxt));
-    const { bgLayer, fgLayer, agent } =
+    const { bgLayer, fgLayer, outsideViewOverlay, notVisitedOverlay, agent } =
       parseUtils.parseMapTxt(treasureMapTxt, this.game, tileSize);
     this.bgLayer = bgLayer;
     this.fgLayer = fgLayer;
+    this.outsideViewOverlay = outsideViewOverlay;
+    this.notVisitedOverlay = notVisitedOverlay;
     this.agent = agent;
 
     this.gridWidth = this.bgLayer[0].length;
@@ -57,7 +59,9 @@ export default class extends Phaser.State {
           return;
         }
 
+        this.resetAgentView();
         this.agent.moveForward();
+        this.clearAgentView();
 
         if (this.agent.onRaft() && agentLookingAt.tileType !== TileType.WATER) {
           this.agent.destroyRaft();
@@ -140,10 +144,27 @@ export default class extends Phaser.State {
     return tile;
   };
 
+  agentView = () =>
+    this.agent.getView().filter(pos => !this.isOutOfBounds(pos.x, pos.y))
+
+  resetAgentView = () =>
+    this.agentView().forEach(pos => {
+      this.outsideViewOverlay[pos.y][pos.x].visible = true;
+    })
+
+  clearAgentView = () =>
+    this.agentView().forEach(pos => {
+      this.notVisitedOverlay[pos.y][pos.x].destroy();
+      this.outsideViewOverlay[pos.y][pos.x].visible = false;
+    })
+
   create () {
     this.renderLayer(this.bgLayer);
     this.renderLayer(this.fgLayer);
+    this.renderLayer(this.outsideViewOverlay);
+    this.renderLayer(this.notVisitedOverlay);
     this.game.add.existing(this.agent);
+    this.clearAgentView();
     this.game.camera.follow(this.agent);
     this.cameraFollow = true;
     this.game.stage.disableVisibilityChange = true;

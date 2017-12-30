@@ -93,6 +93,22 @@ export default class extends Phaser.Sprite {
     this.y = y * this.tileSize;
   };
 
+  getView = () => {
+    const x = this.gridX;
+    const y = this.gridY;
+    return [
+      {x: x, y: y},
+      {x: x, y: y + 1},
+      {x: x, y: y - 1},
+      {x: x + 1, y: y},
+      {x: x - 1, y: y},
+      {x: x + 1, y: y + 1},
+      {x: x + 1, y: y - 1},
+      {x: x - 1, y: y + 1},
+      {x: x - 1, y: y - 1}
+    ];
+  }
+
   update () {
   }
 }

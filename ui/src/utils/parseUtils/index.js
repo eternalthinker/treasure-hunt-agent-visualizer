@@ -3,6 +3,7 @@ import * as SpriteFrame from '../../constants/SpriteFrame';
 import TileData from './TileData';
 import Tile from '../../sprites/Tile';
 import Agent from '../../sprites/Agent';
+import BlackTile from '../../sprites/BlackTile';
 
 const tileMap = {
   ' ': TileType.GROUND,
@@ -161,6 +162,19 @@ const toTileLayer = (tileDataGrid, layer, tileSize, game) =>
     })
   );
 
+const createOverlay = (alpha, game, tileSize, refLayer) =>
+  refLayer.map(row =>
+    row.map(cell =>
+      new BlackTile({
+        x: cell.x,
+        y: cell.y,
+        game: game,
+        tileSize: tileSize,
+        alpha: alpha
+      })
+    )
+  );
+
 const getAgent = fgLayer =>
   fgLayer.reduce((accRow, row) => {
     if (accRow) {
@@ -186,7 +200,7 @@ const getAgent = fgLayer =>
 export const parseMapTxt = (txt, game, tileSize) => {
   const tileDataGrid = toTileDataGrid(txt);
   const bgLayer = toTileLayer(tileDataGrid, 0, tileSize, game);
-  let fgLayer = toTileLayer(tileDataGrid, 1, tileSize, game);
+  const fgLayer = toTileLayer(tileDataGrid, 1, tileSize, game);
   const agent = getAgent(fgLayer);
   fgLayer[agent.gridY][agent.gridX] = new Tile({
     x: agent.x,
@@ -197,9 +211,13 @@ export const parseMapTxt = (txt, game, tileSize) => {
     tileType: TileType.START,
     tileSize: tileSize
   });
+  const notVisitedOverlay = createOverlay(0.3, game, tileSize, bgLayer);
+  const outsideViewOverlay = createOverlay(0.2, game, tileSize, bgLayer);
   return {
     bgLayer,
     fgLayer,
+    outsideViewOverlay,
+    notVisitedOverlay,
     agent
   };
 };
