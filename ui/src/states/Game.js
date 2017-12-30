@@ -5,6 +5,7 @@ import * as Command from '../constants/Command';
 import * as TileType from '../constants/TileType';
 import * as SpriteFrame from '../constants/SpriteFrame';
 import config from '../config';
+import Ui from '../utils/Ui';
 
 export default class extends Phaser.State {
   init () {
@@ -27,6 +28,9 @@ export default class extends Phaser.State {
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.worldScale = 1;
+
+    this.ui = new Ui();
+    this.serverDisconnected = false;
   }
 
   preload () {}
@@ -40,6 +44,12 @@ export default class extends Phaser.State {
   }
 
   handleCommands = (cmds) => {
+    if (this.commandWaitTimer.running) {
+      this.commandWaitTimer.stop();
+    } else {
+      this.ui.setCommandIndicator(false);
+    }
+    this.startCommandWaitTimer();
     cmds.trim().split('').map((cmd) => this.handleCommand(cmd.toLowerCase()));
   };
 
@@ -186,11 +196,34 @@ export default class extends Phaser.State {
     this.game.world.scale.set(this.worldScale);
 
     this.socket = io();
-    const onConnect = () => {
-      console.log('Connected to visualization server');
-    };
-    this.socket.on('connect', onConnect);
+    this.socket.on('connect', this.onConnect);
+    this.socket.on('disconnect', this.onDisconnect);
     this.socket.on('commands', this.handleCommands);
+
+    this.commandWaitTimer = this.game.time.create(false);
+    this.commandWaitTimer.stop();
+  }
+
+  startCommandWaitTimer = () => {
+    this.commandWaitTimer.add(Phaser.Timer.SECOND * 3, this.onCommandWaitTimer, this);
+    this.commandWaitTimer.start();
+  };
+
+  onCommandWaitTimer = () => {
+    this.commandWaitTimer.stop();
+    this.ui.setCommandIndicator(true);
+  };
+
+  onConnect = () => {
+    console.log('Connected to visualization server');
+    if (this.serverDisconnected) {
+      this.ui.reloadWindow();
+    }
+  };
+
+  onDisconnect = () => {
+    this.serverDisconnected = true;
+    this.ui.notifyDisconnection();
   }
 
   update () {
