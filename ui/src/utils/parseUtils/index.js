@@ -32,10 +32,12 @@ const wallTiles = [
 ];
 
 const toTreasureMapData = (treasureMapTxt) =>
-  treasureMapTxt.split('\n')
+  treasureMapTxt.split(/\r\n|[\n\v\f\r\x85\u2028\u2029]/)
     .map((rowTxt, row) =>
       rowTxt.split('').map((chr, col) => {
-        if (!tileMap[chr]) { console.log(`No mapping for #${chr}#`, row, col); }
+        if (!tileMap[chr]) {
+          console.log(`Invalid character [${chr}] at`, row, col);
+        }
         return tileMap[chr];
       })
     )
