@@ -14,7 +14,7 @@ export default class extends Phaser.State {
     //
     // load your assets
     //
-    this.load.text('treasureMapTxt', '/treasure-map.txt');
+    this.load.text('treasureMapTxt', `/treasure-map.txt?v=${Date.now()}`);
     this.load.spritesheet('spriteSheet', spriteSheetImg, 64, 64);
   }
 
