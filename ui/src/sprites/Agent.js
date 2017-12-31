@@ -40,11 +40,11 @@ export default class extends Phaser.Sprite {
   addToInventory = (tileType) => {
     const count = (this.inventory.get(tileType) || 0) + 1;
     if (tileType !== TileType.DYNAMITE && count > 1) {
-      console.log(`Inventory already contains ${tileType}. Cannot add more.`);
+      // console.log(`Inventory already contains ${tileType}. Cannot add more.`);
       return;
     }
     this.inventory.set(tileType, count);
-    console.log(`Added ${tileType} to inventory. Current count = ${count}`);
+    // console.log(`Added ${tileType} to inventory. Current count = ${count}`);
   };
 
   makeRaft = () => {
@@ -63,10 +63,10 @@ export default class extends Phaser.Sprite {
     const count = this.inventory.get(tileType);
     if (count === 1) {
       this.inventory.delete(tileType);
-      console.log(`Inventory has no more ${tileType}`);
+      // console.log(`Inventory has no more ${tileType}`);
     } else {
       this.inventory.set(tileType, count - 1);
-      console.log(`Inventory has ${count - 1} ${tileType} left`);
+      // console.log(`Inventory has ${count - 1} ${tileType} left`);
     }
   };
 

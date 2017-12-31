@@ -19,6 +19,11 @@ export default class extends Phaser.State {
     this.outsideViewOverlay = outsideViewOverlay;
     this.notVisitedOverlay = notVisitedOverlay;
     this.agent = agent;
+    this.startPos = {
+      x: this.agent.gridX,
+      y: this.agent.gridY
+    };
+    this.isGameWon = false;
 
     this.gridWidth = this.bgLayer[0].length;
     this.gridHeight = this.bgLayer.length;
@@ -60,30 +65,38 @@ export default class extends Phaser.State {
   };
 
   handleCommand = (cmd) => {
-    console.log('Command:', cmd);
+    let msg = `[${cmd}] `;
     const agentLookingAt = this.agentLookingAt();
-    console.log('Looking at:', agentLookingAt && agentLookingAt.tileType);
     switch (cmd) {
       case Command.STEP_FORWARD:
         if (!agentLookingAt) {
-          console.log('Stepping into the unknown. You die.');
+          msg += 'Stepped out of the map. You are dead. Game over.';
           return;
         }
 
         if (agentLookingAt.isBlocking()) {
-          console.log("Can't move!");
+          msg += `Tried to move forward but you are 
+            blocked by a ${agentLookingAt.tileType}.`;
           return;
         }
 
         this.resetAgentView();
         this.agent.moveForward();
+        msg += 'Moved forward. ';
         this.clearAgentView();
+
+        if (this.isAgentBackAtStart() && this.agent.has(TileType.TREASURE)) {
+          msg += 'Back at start with treasure. You won!';
+          this.isGameWon = true;
+        }
 
         if (this.agent.onRaft() && agentLookingAt.tileType !== TileType.WATER) {
           this.agent.destroyRaft();
+          msg += 'Got back into land from water. ';
         }
 
         if (agentLookingAt.isCollectable()) {
+          msg += `Collected ${agentLookingAt.tileType}. `;
           this.agent.addToInventory(agentLookingAt.tileType);
           this.ui.setInventory(this.agent.inventory);
           this.removeFromFgLayer(agentLookingAt);
@@ -91,25 +104,27 @@ export default class extends Phaser.State {
         } else if (agentLookingAt.tileType === TileType.WATER &&
           !this.agent.onRaft()) {
           if (!this.agent.has(TileType.TREE)) {
-            console.log('You drowned');
+            msg += 'Walked into water and drowned. Game over.';
           } else {
             this.agent.removeFromInventory(TileType.TREE);
             this.ui.setInventory(this.agent.inventory);
             this.agent.makeRaft();
-            console.log('You float on a raft');
+            msg += 'Made a raft and entered water.';
           }
         }
 
         break;
       case Command.TURN_RIGHT:
         this.agent.turnRight();
+        msg += 'Turned right.';
         break;
       case Command.TURN_LEFT:
         this.agent.turnLeft();
+        msg += 'Turned left.';
         break;
       case Command.CUT:
         if (!this.agent.has(TileType.AXE)) {
-          console.log("Can't cut without axe!");
+          msg += 'Tried to cut, but you do not have an AXE.';
           return;
         }
         if (agentLookingAt && agentLookingAt.tileType === TileType.TREE) {
@@ -117,36 +132,49 @@ export default class extends Phaser.State {
           this.ui.setInventory(this.agent.inventory);
           agentLookingAt.frame = SpriteFrame.TREE_CUT;
           this.removeFromFgLayer(agentLookingAt);
+          msg += 'Cut down a TREE.';
+        } else {
+          msg += 'Tried to cut, but the action is invalid here.';
         }
         break;
       case Command.UNLOCK:
         if (!this.agent.has(TileType.KEY)) {
-          console.log("Can't unlock without key!");
+          msg += 'Tried to unlock, but you do not have a key.';
           return;
         }
         if (agentLookingAt && agentLookingAt.tileType === TileType.DOOR) {
           agentLookingAt.frame =
             SpriteFrame[`DOOR_OPEN_LINKED_${agentLookingAt.linkType}`];
           this.removeFromFgLayer(agentLookingAt);
+          msg += 'Unlocked a DOOR.';
+        } else {
+          msg += 'Tried to unlock, but the action is invalid here.';
         }
         break;
       case Command.BOMB:
         if (!this.agent.has(TileType.DYNAMITE)) {
-          console.log("Can't bomb without dynamite!");
+          msg += 'Tried to bomb, but you do not have dynamite.';
           return;
         }
         if (agentLookingAt && agentLookingAt.isDestructableByBomb()) {
+          msg += `Bombed a ${agentLookingAt.tileType}`;
           agentLookingAt.frame = SpriteFrame.BOMBED_GROUND;
           this.removeFromFgLayer(agentLookingAt);
           this.agent.removeFromInventory(TileType.DYNAMITE);
           this.ui.setInventory(this.agent.inventory);
+        } else {
+          msg += 'Tried to bomb, but the action is invalid here.';
         }
         break;
       default:
-        console.log('Unhandled command');
+        msg += 'Invalid command.';
         break;
     }
+    this.ui.log(msg);
   };
+
+  isAgentBackAtStart = () =>
+    this.agent.gridX === this.startPos.x && this.agent.gridY === this.startPos.y
 
   removeFromFgLayer = (tile) => {
     this.fgLayer[tile.gridY][tile.gridX] = null;
@@ -199,12 +227,10 @@ export default class extends Phaser.State {
       this.minScale = this.worldScale;
       this.cameraFollow = false;
       this.world.camera.unfollow();
-      this.ui.setAgentFocus(false);
     }
     const gameWidth = Math.min(this.worldWidth * this.worldScale, config.gameWidth);
     const gameHeight = Math.min(this.worldHeight * this.worldScale, config.gameHeight);
     this.game.scale.setGameSize(gameWidth, gameHeight);
-
     this.game.world.scale.set(this.worldScale);
 
     this.socket = io();
@@ -214,6 +240,9 @@ export default class extends Phaser.State {
 
     this.commandWaitTimer = this.game.time.create(false);
     this.commandWaitTimer.stop();
+
+    this.ui.setInventory(this.agent.inventory);
+    this.ui.setAgentFocus(this.cameraFollow);
   }
 
   startCommandWaitTimer = () => {
@@ -223,7 +252,9 @@ export default class extends Phaser.State {
 
   onCommandWaitTimer = () => {
     this.commandWaitTimer.stop();
-    this.ui.setCommandIndicator(true);
+    if (!this.isGameWon) {
+      this.ui.setCommandIndicator(true);
+    }
   };
 
   onConnect = () => {

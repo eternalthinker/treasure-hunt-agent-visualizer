@@ -1,5 +1,15 @@
 body {
 	background: #262626;
+	font-family: monospace;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
 }
 
 #game {
@@ -8,14 +18,15 @@ body {
 
 #game-ui {
 	float: left;
-	width: 200px;
+	width: 300px;
 	background: #eee;
 	margin-left: 10px;
 	padding: 5px;
+	box-sizing: border-box;
 }
 
-#alert {
-	color: salmon;
+#alert, #command-indicator {
+	color: red;
 }
 
 .drag-disabled {
@@ -24,4 +35,9 @@ body {
 
 .drag-enabled {
 	cursor: all-scroll;
+}
+
+#action-log {
+	width: 285px;
+	height: 100px;
 }

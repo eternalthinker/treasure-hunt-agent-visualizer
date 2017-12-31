@@ -9,6 +9,7 @@ export default class Ui {
     this.alertElem = document.getElementById('alert');
     this.agentFocus = document.getElementById('agent-focus');
     this.inventoryElem = document.getElementById('inventory');
+    this.actionLog = document.getElementById('action-log');
   }
 
   notifyDisconnection = () => {
@@ -33,17 +34,21 @@ export default class Ui {
 
   setAgentFocus = (enable) => {
     if (enable) {
-      this.agentFocus.innerHTML = "Agent focus enabled. Mouse drag disabled. Press 'F' to toggle.";
+      this.agentFocus.innerHTML = 'ENABLED: Camera focus on agent. Mouse drag on map disabled.';
       this.gameElem.setAttribute('class', 'drag-disabled');
       // $('#game').removeClass('drag-enabled').addClass('drag-disabled');
     } else {
-      this.agentFocus.innerHTML = "Agent focus disabled. Use mouse to drag map. Press 'F' to enable focus on agent.";
+      this.agentFocus.innerHTML = 'DISABLED: Camera do not focus on agent. Use mouse to drag map. Scroll to zoom in/out.';
       this.gameElem.setAttribute('class', 'drag-enabled');
       // $('#game').removeClass('drag-disabled').addClass('drag-enabled');
     }
   };
 
   setInventory = (inventory) => {
+    if (inventory.size === 0) {
+      this.inventoryElem.innerHTML = "<span style='color:#ccc'>empty</span>";
+      return;
+    }
     let html = '<ul>';
     html += Array.from(inventory.entries()).map(entry => {
       if (entry[0] === TileType.DYNAMITE) {
@@ -55,4 +60,9 @@ export default class Ui {
     html += '</ul>';
     this.inventoryElem.innerHTML = html;
   }
+
+  log = (message) => {
+    this.actionLog.value += message + '\n';
+    this.actionLog.scrollTop = this.actionLog.scrollHeight;
+  };
 }

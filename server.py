@@ -19,7 +19,7 @@ def main():
     parser = argparse.ArgumentParser(description='Treasure Hunt Agent visualizer')
     parser.add_argument('-p','--port', help='Port of the treasure hunt (Raft) server', 
         type=int, required=True)
-    parser.add_argument('-m','--map-file', help='Path to treasure hunt map file', 
+    parser.add_argument('-i','--map-file', help='Path to treasure hunt map file', 
         type=str, required=True)
     parser.add_argument('-w','--web-port', help='Port for accessing visualizer from browser', 
         type=int, default=9000, required=False)
