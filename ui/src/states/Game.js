@@ -84,6 +84,7 @@ export default class extends Phaser.State {
 
         if (agentLookingAt.isCollectable()) {
           this.agent.addToInventory(agentLookingAt.tileType);
+          this.ui.setInventory(this.agent.inventory);
           this.removeFromFgLayer(agentLookingAt);
           agentLookingAt.destroy();
         } else if (agentLookingAt.tileType === TileType.WATER &&
@@ -92,6 +93,7 @@ export default class extends Phaser.State {
             console.log('You drowned');
           } else {
             this.agent.removeFromInventory(TileType.TREE);
+            this.ui.setInventory(this.agent.inventory);
             this.agent.makeRaft();
             console.log('You float on a raft');
           }
@@ -111,6 +113,7 @@ export default class extends Phaser.State {
         }
         if (agentLookingAt && agentLookingAt.tileType === TileType.TREE) {
           this.agent.addToInventory(agentLookingAt.tileType);
+          this.ui.setInventory(this.agent.inventory);
           agentLookingAt.frame = SpriteFrame.TREE_CUT;
           this.removeFromFgLayer(agentLookingAt);
         }
@@ -135,6 +138,7 @@ export default class extends Phaser.State {
           agentLookingAt.frame = SpriteFrame.BOMBED_GROUND;
           this.removeFromFgLayer(agentLookingAt);
           this.agent.removeFromInventory(TileType.DYNAMITE);
+          this.ui.setInventory(this.agent.inventory);
         }
         break;
       default:

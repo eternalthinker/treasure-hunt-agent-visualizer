@@ -1,4 +1,5 @@
 // import $ from 'jquery';
+import * as TileType from '../constants/TileType';
 
 export default class Ui {
   constructor () {
@@ -7,6 +8,7 @@ export default class Ui {
     this.commandIndicator = document.getElementById('command-indicator');
     this.alertElem = document.getElementById('alert');
     this.agentFocus = document.getElementById('agent-focus');
+    this.inventoryElem = document.getElementById('inventory');
   }
 
   notifyDisconnection = () => {
@@ -40,4 +42,17 @@ export default class Ui {
       // $('#game').removeClass('drag-disabled').addClass('drag-enabled');
     }
   };
+
+  setInventory = (inventory) => {
+    let html = '<ul>';
+    html += Array.from(inventory.entries()).map(entry => {
+      if (entry[0] === TileType.DYNAMITE) {
+        return `<li>${entry[0]}: ${entry[1]}</li>`;
+      } else {
+        return `<li>${entry[0]}</li>`;
+      }
+    }).join('');
+    html += '</ul>';
+    this.inventoryElem.innerHTML = html;
+  }
 }
