@@ -29,6 +29,7 @@ export default class extends Phaser.State {
     this.game.input.mouse.mouseWheelCallback = this.handleScroll;
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.worldScale = 1;
+    this.minScale = 0.25;
 
     this.ui = new Ui();
     this.serverDisconnected = false;
@@ -193,10 +194,12 @@ export default class extends Phaser.State {
     const widthScale = displayWidth / this.worldWidth;
     const heightScale = displayHeight / this.worldHeight;
     const worldScale = Math.min(widthScale, heightScale);
-    this.worldScale = Phaser.Math.clamp(worldScale, 0.25, 1);
+    this.worldScale = Phaser.Math.clamp(worldScale, this.minScale, 1);
     if (worldScale === this.worldScale) {
+      this.minScale = this.worldScale;
       this.cameraFollow = false;
       this.world.camera.unfollow();
+      this.ui.setAgentFocus(false);
     }
     const gameWidth = Math.min(this.worldWidth * this.worldScale, config.gameWidth);
     const gameHeight = Math.min(this.worldHeight * this.worldScale, config.gameHeight);
@@ -272,7 +275,7 @@ export default class extends Phaser.State {
     } else {
       worldScale -= 0.05;
     }
-    worldScale = Phaser.Math.clamp(worldScale, 0.25, 1);
+    worldScale = Phaser.Math.clamp(worldScale, this.minScale, 1);
     if (worldScale === this.worldScale) {
       this.ui.alert('Reached maximum zoom in this direction');
     } else {
