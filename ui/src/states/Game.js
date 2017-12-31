@@ -32,6 +32,10 @@ export default class extends Phaser.State {
 
     this.ui = new Ui();
     this.serverDisconnected = false;
+
+    this.keyStates = new Map([
+      [Phaser.Keyboard.F, false]
+    ]);
   }
 
   preload () {}
@@ -229,29 +233,31 @@ export default class extends Phaser.State {
 
   update () {
     if (this.game.input.keyboard.isDown(Phaser.Keyboard.F)) {
-      if (this.cameraFollow) {
-        this.game.camera.unfollow();
-      } else {
-        this.game.camera.follow(this.agent);
+      if (!this.keyStates.get(Phaser.Keyboard.F)) {
+        this.keyStates.set(Phaser.Keyboard.F, true);
+        if (this.cameraFollow) {
+          this.game.camera.unfollow();
+          this.ui.setAgentFocus(false);
+        } else {
+          this.game.camera.follow(this.agent);
+          this.ui.setAgentFocus(true);
+        }
+        this.cameraFollow = !this.cameraFollow;
       }
-      this.cameraFollow = !this.cameraFollow;
+    } else {
+      this.keyStates.set(Phaser.Keyboard.F, false);
     }
 
-    if (this.game.input.keyboard.isDown(Phaser.Keyboard.Z)) {
-      this.worldScale = 1;
-      this.game.world.scale.set(this.worldScale);
-    }
-
-    if (this.cursors.up.isDown) {
-      this.game.camera.y -= 4;
-    } else if (this.cursors.down.isDown) {
-      this.game.camera.y += 4;
-    }
-
-    if (this.cursors.left.isDown) {
-      this.game.camera.x -= 4;
-    } else if (this.cursors.right.isDown) {
-      this.game.camera.x += 4;
+    if (this.game.input.activePointer.isDown) {
+      if (this.game.origDragPoint) {
+        // move the camera by the amount the mouse has moved since last update
+        this.game.camera.x += this.game.origDragPoint.x - this.game.input.activePointer.position.x;
+        this.game.camera.y += this.game.origDragPoint.y - this.game.input.activePointer.position.y;
+      }
+      // set new drag origin to current position
+      this.game.origDragPoint = this.game.input.activePointer.position.clone();
+    } else {
+      this.game.origDragPoint = null;
     }
   }
 

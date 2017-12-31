@@ -11,6 +11,8 @@ const pixi = path.join(phaserModule, 'build/custom/pixi.js');
 const p2 = path.join(phaserModule, 'build/custom/p2.js');
 const socketio = path.join(__dirname, 
   '/node_modules/socket.io-client/dist/socket.io.slim.js');
+const jquery = path.join(__dirname,
+  '/node_modules/jquery/dist/jquery.slim.js');
 
 export default {
   entry: {
@@ -18,7 +20,7 @@ export default {
       'babel-polyfill', 
       path.join(__dirname, '/src/index.js')
     ],
-    vendor: ['pixi', 'p2', 'phaser', 'webfontloader', 'socketio']
+    vendor: ['pixi', 'p2', 'phaser', 'webfontloader', 'socketio', 'jquery']
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -48,6 +50,10 @@ export default {
         test: /p2\.js$/,
         loaders: ['expose-loader?p2']
       },
+      {
+        test: /jquery\.js$/, 
+        loaders: ['expose-loader?$!expose-loader?jQuery']
+      }
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -86,6 +92,7 @@ export default {
       'pixi': pixi,
       'p2': p2,
       'socketio': socketio,
+      'jquery': jquery
     }
   }
 }

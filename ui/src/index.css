@@ -17,3 +17,11 @@ body {
 #alert {
 	color: salmon;
 }
+
+.drag-disabled {
+	cursor: not-allowed;
+}
+
+.drag-enabled {
+	cursor: all-scroll;
+}
