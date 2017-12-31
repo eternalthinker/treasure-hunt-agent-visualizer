@@ -53,7 +53,7 @@ export default {
       {
         test: /jquery\.js$/, 
         loaders: ['expose-loader?$!expose-loader?jQuery']
-      }
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,
