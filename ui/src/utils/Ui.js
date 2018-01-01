@@ -1,4 +1,3 @@
-// import $ from 'jquery';
 import * as TileType from '../constants/TileType';
 
 export default class Ui {
@@ -36,11 +35,9 @@ export default class Ui {
     if (enable) {
       this.agentFocus.innerHTML = 'ENABLED: Camera focus on agent. Mouse drag on map disabled.';
       this.gameElem.setAttribute('class', 'drag-disabled');
-      // $('#game').removeClass('drag-enabled').addClass('drag-disabled');
     } else {
       this.agentFocus.innerHTML = 'DISABLED: Camera do not focus on agent. Use mouse to drag map. Scroll to zoom in/out.';
       this.gameElem.setAttribute('class', 'drag-enabled');
-      // $('#game').removeClass('drag-disabled').addClass('drag-enabled');
     }
   };
 
