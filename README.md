@@ -15,7 +15,7 @@ Visualizer requires some additional python3 modules. Install them as follows:
 How to run
 -----------
 1. Run Raft server: `java Raft -p 3000 -i s0.in`
-2. Run visualizer server with the same arguments: `python3 server.py -p 3000 -i s0.in`
+2. Run visualizer server with the same arguments: `python3 server.py -p 3000 -i ../src/s0.in`
   - By default visualizer will run web server on port 9000 and mock server on port 9001
   - Above ports can be overridden as: `python3 server.py -p 3000 -i s0.in -w 9000 -v 9001`
 3. Open `http://localhost:9000` in web browser
